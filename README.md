@@ -1,2 +1,3 @@
-# shellingo-cmd-rust
+# Shellingo-cmd-rust
+
 Shellingo - a command line vocabulary practice tool
