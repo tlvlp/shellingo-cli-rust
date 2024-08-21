@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'shellingo-cmd-rust'",
+            "name": "Debug executable 'shellingo-cli-rust'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=shellingo-cmd-rust",
-                    "--package=shellingo-cmd-rust"
+                    "--bin=shellingo-cli-rust",
+                    "--package=shellingo-cli-rust"
                 ],
                 "filter": {
-                    "name": "shellingo-cmd-rust",
+                    "name": "shellingo-cli-rust",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'shellingo-cmd-rust'",
+            "name": "Debug unit tests in executable 'shellingo-cli-rust'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=shellingo-cmd-rust",
-                    "--package=shellingo-cmd-rust"
+                    "--bin=shellingo-cli-rust",
+                    "--package=shellingo-cli-rust"
                 ],
                 "filter": {
-                    "name": "shellingo-cmd-rust",
+                    "name": "shellingo-cli-rust",
                     "kind": "bin"
                 }
             },
