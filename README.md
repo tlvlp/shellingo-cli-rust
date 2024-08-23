@@ -1,6 +1,7 @@
 # Shellingo
 
 A simple language-agnostic command line tool for custom vocabulary practice.
+
 (Without the constant harassment of the Duolingo owl)
 
 > This is the Rust version of the [original java-based project](https://github.com/tlvlp/shellingo), because why not.
