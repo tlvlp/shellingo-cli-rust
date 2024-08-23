@@ -1,14 +1,13 @@
 # Shellingo
 
 A simple language-agnostic command line tool for custom vocabulary practice.
-
 (Without the constant harassment of the Duolingo owl)
 
-> This is the Rust version of the [original java-based project](https://github.com/tlvlp/shellingo), because why not.
+> This is the Rust version of the [original java-based project](https://github.com/tlvlp/shellingo-java), because why not.
 
 ## How to use
 
-1. [Download the latest release for your OS](https://github.com/tlvlp/shellingo-rust/releases)
+1. [Download the latest release for your OS](https://github.com/tlvlp/shellingo/releases)
 2. Create a subfolder named **questions** next to the executable. This is the configurable default path to store your questions in.
 3. Add questions (see the 'How to' section below)
 4. Run the tool with:
