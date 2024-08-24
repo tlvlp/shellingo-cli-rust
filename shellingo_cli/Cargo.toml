@@ -1,8 +1,8 @@
 [package]
-name = "shellingo-cli"
+name = "shellingo_cli"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-shellingo-core = { path = "../shellingo-core" }
+shellingo_core = { path = "../shellingo_core" }
 clap = "4.5.16"
