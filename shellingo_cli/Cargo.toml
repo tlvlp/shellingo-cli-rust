@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 shellingo_core = { path = "../shellingo_core" }
 clap = { version = "4.5.16", features = ["cargo"] }
+walkdir = "2.5.0"
