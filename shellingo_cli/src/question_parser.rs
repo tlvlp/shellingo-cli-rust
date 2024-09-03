@@ -1,4 +1,4 @@
-use std::{collections::HashSet, fs::{self}, path::PathBuf, sync::LazyLock, vec::IntoIter};
+use std::{collections::{HashMap, HashSet}, fs::{self}, path::PathBuf, sync::LazyLock};
 use regex::Regex;
 use shellingo_core::question::Question;
 use walkdir::{WalkDir, DirEntry};
@@ -8,7 +8,7 @@ static MULTIPLE_WHITESPACES_RE: LazyLock<Regex> = LazyLock::new(||Regex::new(r"\
 
 /// Returns all Questions under the provided path. 
 /// Takes both a single file or a directory and recursively parses all Questions under them.
-pub fn read_all_questions_from(path: PathBuf) -> HashSet<Question> {
+pub fn read_all_questions_from(path: PathBuf) -> HashMap<String, Question> {
         WalkDir::new(path)
             .into_iter()
             .filter_map(Result::ok)
@@ -16,9 +16,8 @@ pub fn read_all_questions_from(path: PathBuf) -> HashSet<Question> {
             .filter_map(read_file_to_string_or_skip_on_error)
             .flat_map(get_lines_from_string)
             .filter_map(parse_question_from_line)
-            .collect()
+            .fold(HashMap::new(), |map, new_question| merge_answers(map, new_question))
 }
-
 struct ProcessingStep<T> {
     result: T,
     path: String
@@ -60,17 +59,25 @@ fn parse_question_from_line(line_contents: ProcessingStep<String>) -> Option<Que
     if line.starts_with("#") { 
         return None; // Skip comments. 
     }; 
-    let split: Vec<&str> = line.split_terminator('|').collect();
-    if split.len() != 2 {
+    let split_q: Vec<&str> = line.split_terminator('|').collect();
+    if split_q.len() != 2 {
         print!("Error, skipping malformed question. Path:'{}' Line: '{}'", path, line);
         return None;
     }
-    let question: String = remove_exra_whitespaces(split[0]);
-    let solutions: HashSet<String> = HashSet::from([remove_exra_whitespaces(split[1])]);
-    
-    return Some(Question::new(path, question, solutions));
+    let question: String = remove_exra_whitespaces(split_q[0]);
+    let solutions: HashSet<String> = HashSet::from([remove_exra_whitespaces(split_q[1])]);
+    Some(Question::new(path, question, solutions))
 }
 
 fn remove_exra_whitespaces(text: &str) -> String {
     MULTIPLE_WHITESPACES_RE.replace_all(text, "").into_owned()
 }
+
+fn merge_answers(mut map: HashMap<String, Question>, new_q: Question) -> HashMap<String, Question> {
+    map.entry(new_q.question.clone())
+        .and_modify(|old_q| {
+            old_q.solutions = old_q.solutions.union(&new_q.solutions).cloned().collect()
+        })  
+        .or_insert(new_q);            
+    map
+} 
