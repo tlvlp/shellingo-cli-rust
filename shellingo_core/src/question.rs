@@ -13,7 +13,7 @@ pub struct Question {
 }
 
 impl Question {
-   fn new(location: String, quesion: String, solutions: HashSet<String>) -> Question {
+   pub fn new(location: String, quesion: String, solutions: HashSet<String>) -> Question {
       Question {
          location: location, 
          question: quesion,
