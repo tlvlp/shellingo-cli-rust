@@ -1,9 +1,9 @@
 use std::{collections::{HashMap, HashSet}, fs::{self}, path::PathBuf, sync::LazyLock};
 use regex::Regex;
 use shellingo_core::question::Question;
-use walkdir::{WalkDir, DirEntry};
+use walkdir::{DirEntry, Error, WalkDir};
 
-static MULTIPLE_WHITESPACES_RE: LazyLock<Regex> = LazyLock::new(||Regex::new(r"\s+").unwrap());
+static MULTIPLE_WHITESPACES_REGEX: LazyLock<Regex> = LazyLock::new(||Regex::new(r"\s+").unwrap());
 
 
 /// Returns all Questions under the provided path. 
@@ -11,16 +11,27 @@ static MULTIPLE_WHITESPACES_RE: LazyLock<Regex> = LazyLock::new(||Regex::new(r"\
 pub fn read_all_questions_from(path: PathBuf) -> HashMap<String, Question> {
         WalkDir::new(path)
             .into_iter()
-            .filter_map(Result::ok)
+            .filter_map(filter_readable_entries)
             .filter(filter_for_files)
             .filter_map(read_file_to_string_or_skip_on_error)
             .flat_map(get_lines_from_string)
             .filter_map(parse_question_from_line)
             .fold(HashMap::new(), |map, new_question| merge_answers(map, new_question))
 }
+
 struct ProcessingStep<T> {
     result: T,
     path: String
+}
+
+fn filter_readable_entries(result: Result<DirEntry, Error>) -> Option<DirEntry> {
+    match result {
+        Ok(res) => return Some(res), 
+        Err(e) => {
+            print!("Error: Skipping unreadable directory entry with reason: {}", e);
+            return None;
+        },
+    }
 }
 
 fn filter_for_files(dir_entry: &DirEntry) -> bool {
@@ -70,10 +81,11 @@ fn parse_question_from_line(line_contents: ProcessingStep<String>) -> Option<Que
 }
 
 fn remove_exra_whitespaces(text: &str) -> String {
-    MULTIPLE_WHITESPACES_RE.replace_all(text, "").into_owned()
+    MULTIPLE_WHITESPACES_REGEX.replace_all(text, " ").into_owned()
 }
 
 fn merge_answers(mut map: HashMap<String, Question>, new_q: Question) -> HashMap<String, Question> {
+    // Merges answers for the same question.
     map.entry(new_q.question.clone())
         .and_modify(|old_q| {
             old_q.solutions = old_q.solutions.union(&new_q.solutions).cloned().collect()
