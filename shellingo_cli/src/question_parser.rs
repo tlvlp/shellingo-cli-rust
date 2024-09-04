@@ -93,3 +93,22 @@ fn merge_answers(mut map: HashMap<String, Question>, new_q: Question) -> HashMap
         .or_insert(new_q);            
     map
 } 
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+
+    #[test]
+    fn all_questions_are_parsed_from_nested_subdirectories() {
+        // Given
+        let path = PathBuf::from("tests/fixtures/nested");
+
+        // When
+        let question_map = read_all_questions_from(path);
+
+        // Then
+        assert_eq!(question_map.len(), 2);
+    }
+}
