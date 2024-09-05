@@ -112,6 +112,16 @@ mod tests {
     }
     
     #[test]
+    fn comments_are_skipped() {
+        // Given
+        let path = PathBuf::from("tests/fixtures/comment");
+        // When
+        let question_map = read_all_questions_from(path);
+        // Then
+        assert_eq!(question_map.len(), 1);
+    }
+
+    #[test]
     fn same_question_with_different_answers_in_multiple_files_collected_to_a_single_question() {
         // Given
         let path = PathBuf::from("tests/fixtures/collect");
@@ -131,7 +141,7 @@ mod tests {
     }
 
     #[test]
-    fn remove_extra_whitespaces_test() {
+    fn extra_whitespaces_are_removed() {
         // Given
         let input = "     my       question ";
         let expected = "my question".to_owned();
