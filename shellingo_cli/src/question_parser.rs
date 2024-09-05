@@ -5,7 +5,6 @@ use walkdir::{DirEntry, Error, WalkDir};
 
 static MULTIPLE_WHITESPACES_REGEX: LazyLock<Regex> = LazyLock::new(||Regex::new(r"\s+").unwrap());
 
-
 /// Returns all Questions under the provided path. 
 /// Takes both a single file or a directory and recursively parses all Questions under them.
 pub fn read_all_questions_from(path: PathBuf) -> HashMap<String, Question> {
@@ -76,12 +75,15 @@ fn parse_question_from_line(line_contents: ProcessingStep<String>) -> Option<Que
         return None;
     }
     let question: String = remove_exra_whitespaces(split_q[0]);
-    let solutions: HashSet<String> = HashSet::from([remove_exra_whitespaces(split_q[1])]);
+    let solutions: HashSet<String> = HashSet::from([remove_exra_whitespaces(split_q[1])]); 
     Some(Question::new(path, question, solutions))
 }
 
 fn remove_exra_whitespaces(text: &str) -> String {
-    MULTIPLE_WHITESPACES_REGEX.replace_all(text, " ").into_owned()
+        MULTIPLE_WHITESPACES_REGEX.replace_all(text, " ")
+        .trim_start()
+        .trim_end()
+        .to_owned()
 }
 
 fn merge_answers(mut map: HashMap<String, Question>, new_q: Question) -> HashMap<String, Question> {
@@ -99,16 +101,43 @@ fn merge_answers(mut map: HashMap<String, Question>, new_q: Question) -> HashMap
 mod tests {
     use super::*;
 
-
     #[test]
     fn all_questions_are_parsed_from_nested_subdirectories() {
         // Given
         let path = PathBuf::from("tests/fixtures/nested");
-
         // When
         let question_map = read_all_questions_from(path);
-
         // Then
         assert_eq!(question_map.len(), 2);
+    }
+    
+    #[test]
+    fn same_question_with_different_answers_in_multiple_files_collected_to_a_single_question() {
+        // Given
+        let path = PathBuf::from("tests/fixtures/collect");
+        let question_key = "question".to_owned();
+        let answer_1 = "f0_q1 answer";
+        let answer_2 = "f0_q2 answer";
+        let answer_3 = "f1_q1 answer";
+        // When
+        let question_map = read_all_questions_from(path);
+        // Then
+        let solutions = &question_map.get(&question_key).unwrap().solutions;
+        assert_eq!(question_map.len(), 1, "All 3 lines from 3 different files merged as one due to their matching question.");
+        assert_eq!(solutions.len(), 3, "All 3 answers are kept for the question.");
+        assert!(solutions.contains(answer_1), "The expected answer 1 is present");
+        assert!(solutions.contains(answer_2), "The expected answer 2 is present");
+        assert!(solutions.contains(answer_3), "The expected answer 3 is present");
+    }
+
+    #[test]
+    fn remove_extra_whitespaces_test() {
+        // Given
+        let input = "     my       question ";
+        let expected = "my question".to_owned();
+        // When
+        let result = remove_exra_whitespaces(&input);
+        // Then 
+        assert_eq!(expected, result);
     }
 }
