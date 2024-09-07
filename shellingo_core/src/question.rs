@@ -2,7 +2,7 @@ use std::{collections::HashSet, hash::Hash};
 
 #[derive(Debug)]
 pub struct Question {
-   pub location: String,
+   pub locations: HashSet<String>,
    pub question: String,
    pub solutions: HashSet<String>,
 
@@ -13,11 +13,11 @@ pub struct Question {
 }
 
 impl Question {
-   pub fn new(location: String, quesion: String, solutions: HashSet<String>) -> Question {
+   pub fn new(location: String, question: String, solution: String) -> Question {
       Question {
-         location: location, 
-         question: quesion,
-         solutions: solutions,
+         question,
+         locations: HashSet::from([location]), 
+         solutions: HashSet::from([solution]),
 
          correct_count_round: 0,
          error_count_round: 0,
@@ -29,8 +29,7 @@ impl Question {
 
 impl PartialEq for Question {
     fn eq(&self, other: &Self) -> bool {
-        self.question == other.question 
-        && self.location == other.location
+        self.question == other.question
     }
 }
 
@@ -39,6 +38,5 @@ impl Eq for Question {}
 impl Hash for Question {
       fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
           self.question.hash(state);
-          self.location.hash(state);
       }
 }
